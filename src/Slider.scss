@@ -1,0 +1,50 @@
+
+:root{
+  --items-width: 100%;
+}
+.slider{
+  height: 400px;
+  width: 800px;
+
+}
+
+.window{
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+
+}
+
+.all-items-container{
+  height: 100%;
+  display: flex;
+  transition: transform .5s;
+}
+
+// ---------------- slider item
+
+.item{
+  height: 100%;
+  width: var(--items-width);
+  min-width: var(--items-width);
+  max-width: var(--items-width);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+
+.item-img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+

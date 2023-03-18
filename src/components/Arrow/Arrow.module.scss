@@ -1,0 +1,19 @@
+.arrow{
+  font-size: 5em;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+}
+
+
+
+.position--left{
+
+  transform: translate(-10%, -50%);
+  left: 0;
+}
+.position--right{
+  transform: translate(-10%, -50%);
+  right: 0;
+}
