@@ -1,49 +1,100 @@
-import {SliderProps} from "./Slider.props";
+import {Item, SliderProps} from "./Slider.props";
 import './Slider.scss';
 import cn from "classnames";
 import {Arrow} from "./components/Arrow/Arrow";
-import {useRef, useState} from "react";
-export const Slider = ({items, infinity = true, transition = 300}: SliderProps)=> {
+import {useEffect, useRef, useState, Children, useLayoutEffect} from "react";
 
+export const Slider = ({items, infinity = true, transition = 500}: SliderProps) => {
 
-    const [itemsForView, setItemsForView] = useState([...items])
+    const [itemsForView, setItemsForView] = useState(items);
+    const itemWidth = 100;
     const [offset, setOffset] = useState(0);
+    const [animation, setAnimation] = useState(true);
 
-
-    const itemRef = useRef(null);
-    const swipeSlide = (to: 'left'|'right')=> {
-        if(!itemRef.current){
-            return
+    const itemsContainerRef = useRef<HTMLDivElement>(null);
+    const swipeSlide = (swipeTo: 'prevSlide'|'nextSlide') => {
+        if(itemsContainerRef.current){
+            itemsContainerRef.current.style.transitionDuration = `${transition}ms`;
         }
-        const itemWidth = parseInt(getComputedStyle(itemRef.current).width)
-        console.log(itemWidth)
-        const offsetTo = to === 'left'? itemWidth : -itemWidth;
-
-        if(offset === 0 && offsetTo > 0 || offset === offsetTo * (itemsForView.length - 1)){
+        const offsetTo = swipeTo === 'prevSlide' ? itemWidth : -itemWidth;
+        // if(infinity && offset == -itemWidth && offsetTo > 0){
+        //
+        //     return;
+        //
+        // }
+        if(infinity && offset === 0){
             return;
         }
-
-        setOffset(currentOffset => currentOffset + offsetTo)
+        setOffset(prevState => prevState + offsetTo);
     }
-    return(
+
+    useLayoutEffect(() => {
+        if(infinity){
+            setItemsForView([
+                items[items.length -1 ],
+                ...items,
+                items[0]
+            ])
+            setOffset(-itemWidth);
+
+        }
+    }, [])
+
+    // useEffect(()=> {
+    //     const transitionEnd = () => {
+    //         setAnimation(false);
+    //     }
+    //     document.addEventListener('transitionend', transitionEnd)
+    //
+    //     return () => {
+    //         document.removeEventListener('transitionend', transitionEnd)
+    //     }
+    // }, [offset])
+
+    useLayoutEffect(()=> {
+        if(!itemsContainerRef.current){
+            return;
+        }
+            const transitionEnd = () => {
+            console.log(offset)
+                if(offset === 0){
+                    if(!itemsContainerRef.current){return}
+                    itemsContainerRef.current.style.transitionDuration = `${0}ms`;
+                    setOffset(-300)
+                }
+            }
+            document.addEventListener('transitionend', transitionEnd)
+
+            return () => {
+                document.removeEventListener('transitionend', transitionEnd)
+            }
+
+
+    }, [itemsContainerRef.current, offset])
+
+
+    return (
         <div className={'slider'}>
             <div className="window">
-                <Arrow direction={"left"} onClick={()=> swipeSlide('left')}/>
-                <div className="all-items-container"
-                     style={{transform: `translateX(${offset}px)`}}
+                <Arrow direction={'left'} onClick={swipeSlide.bind(null, 'prevSlide')}/>
+                <div className={cn("all-items-container")}
+                 style={{transform: `translateX(${offset}% )`}}
+                 ref = {itemsContainerRef}
                 >
                     {
                         itemsForView.map(
-                            (item, index) => <div key={item.id} className={cn('item', `item-${index}`)} ref={itemRef}>
+                            (item, index) => <div className={cn('item', `item-${index}`)}>
                                 {item.text}
-                                <img src={item.img} alt="img" className="item-img"/>
-                                <div>{offset}</div>
                             </div>
                         )
                     }
                 </div>
-                <Arrow direction={'right'} onClick={() => swipeSlide('right')}/>
+                <Arrow direction={'right'} onClick={swipeSlide.bind(null, 'nextSlide')}/>
             </div>
+
         </div>
+
+
     )
 }
+
