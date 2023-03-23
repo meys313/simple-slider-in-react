@@ -6,17 +6,22 @@ import {useEffect, useRef, useState, Children, useLayoutEffect} from "react";
 
 export const Slider = ({items, infinity = true, transition = 500}: SliderProps) => {
 
-    const [itemsForView, setItemsForView] = useState(items);
+    const [itemsForView, setItemsForView] = useState(
+        !infinity ? items : [ items[items.length -1 ], ...items, items[0]]
+    );
+
     const copyElement = infinity? 1 : 0;
     const itemWidth = 100;
-    const [offset, setOffset] = useState(0);
-    const windowRef = useRef<HTMLDivElement>(null);
+    const [offset, setOffset] = useState(-(copyElement * itemWidth));
+    const currentSlide = Math.abs(offset/ itemWidth) - copyElement
+
+    // const windowRef = useRef<HTMLDivElement>(null);
     const itemsContainerRef = useRef<HTMLDivElement>(null);
-    const itemRef = useRef<HTMLDivElement>(null);
+    // const itemRef = useRef<HTMLDivElement>(null);
 
 
     const swipeSlide = (swipeTo: 'prevSlide'|'nextSlide') => {
-        if(itemsContainerRef.current && itemRef.current){
+        if(itemsContainerRef.current){
             itemsContainerRef.current.style.transitionDuration = `${transition}ms`;
         }
         const offsetTo = swipeTo === 'prevSlide' ? itemWidth : -itemWidth;
@@ -30,60 +35,28 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
         setOffset(prevState => prevState + offsetTo);
     }
 
+
     const goToSlide = (slide: number) => {
-        const copy = infinity? 1: 0;
-        const slidePosition = -( (slide + copy ) * itemWidth)
+
+        const slidePosition = -( (slide + copyElement ) * itemWidth)
         setOffset(slidePosition)
     }
 
-    useLayoutEffect(() => {
-        if(!windowRef.current || !itemRef.current){ return }
+    const transitionEnd = () => {
+        if(!itemsContainerRef.current){return}
 
-
-
-        if(infinity){
-            setItemsForView([
-                items[items.length -1 ],
-                ...items,
-                items[0]
-            ])
-            setOffset(-itemWidth);
-
-
-        }
-    }, [])
-
-
-    useLayoutEffect(()=> {
-
-        if(!itemsContainerRef.current && infinity){
-            return;
-        }
-
-        if(!infinity){
-            return;
-        }
-        const transitionEnd = () => {
-            if(!itemsContainerRef.current){return}
+        const maxOffset = -(itemWidth * (itemsForView.length - 1))
+        if(offset === 0){
             itemsContainerRef.current.style.transitionDuration = `${0}ms`;
-
-            const maxOffset = -(itemWidth * (itemsForView.length - 1))
-            if(offset === 0){
-                setOffset(maxOffset + itemWidth)
-                return;
-            }
-            if(offset === maxOffset){
-                setOffset(-itemWidth)
-            }
+            setOffset(maxOffset + itemWidth)
+            return;
         }
-        document.addEventListener('transitionend', transitionEnd)
-
-        return () => {
-            document.removeEventListener('transitionend', transitionEnd)
+        if(offset === maxOffset){
+            itemsContainerRef.current.style.transitionDuration = `${0}ms`;
+            setOffset(-itemWidth)
         }
+    }
 
-
-    }, [itemsContainerRef.current, offset])
 
 
     return (
@@ -91,14 +64,15 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
             <Arrow direction={'left'} onClick={swipeSlide.bind(null, 'prevSlide')}/>
             <Arrow direction={'right'} onClick={swipeSlide.bind(null, 'nextSlide')}/>
 
-            <div className="window" ref={windowRef}>
+            <div className="window">
                 <div className={cn("all-items-container")}
                      style={{transform: `translateX(${offset}% )`}}
                      ref = {itemsContainerRef}
+                     onTransitionEnd={transitionEnd}
                 >
                     {
                         itemsForView.map(
-                            (item, index) => <div className={cn('item', `item-${index}`)} ref={itemRef}>
+                            (item, index) => <div className={cn('item', `item-${index}`)}>
                                 <div className="slider-content">
                                     <p>{item.text}</p>
                                 </div>
@@ -108,28 +82,14 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
                     }
                 </div>
             </div>
+            {currentSlide}
 
             <div className="slider-pagination">
                 {items.map(
                     (item, index) => {
                         return (
                             <div onClick={goToSlide.bind(null, index)}>
-                                <i
-                                    className={
-                                    `
-                                    fa-${
-                                        index === Math.abs(offset/itemWidth)- copyElement 
-                                        ? 
-                                        'solid'
-                                        : 'regular'
-                                    
-                                    } 
-                                    fa-circle
-                                    `
-                                }
-                                >
-
-                                </i>
+                                <i className={`fa-${index === currentSlide ? 'solid' : 'regular'} fa-circle`}></i>
                             </div>
                         )
                     }
