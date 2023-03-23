@@ -7,40 +7,25 @@ import img3 from './assets/3.jpg';
 const test_data = [
   {
     id: 123,
-    text: 'hello',
+    text: 'random text',
     img:  img1,
   },
   {
     id: 124,
-    text: 'fuck off',
+    text: 'also random text',
     img:  img2,
   },
   {
     id: 125,
-    text: 'text',
+    text: 'this is random text',
     img: img3,
   },
 
-  // {
-  //   id: 126,
-  //   text: 'zdsa',
-  //   img:  img1,
-  // },
-  // {
-  //   id: 127,
-  //   text: 'wtf',
-  //   img:  img2,
-  // },
-  // {
-  //   id: 128,
-  //   text: 'yo?',
-  //   img: img3,
-  // }
 ]
 function App() {
 
   return (
-    <Slider items={test_data}/>
+    <Slider items={test_data} infinity={true}/>
   )
 }
 
