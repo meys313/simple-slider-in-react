@@ -2,7 +2,7 @@ import {Item, SliderProps} from "./Slider.props";
 import './Slider.scss';
 import cn from "classnames";
 import {Arrow} from "./components/Arrow/Arrow";
-import {useEffect, useRef, useState, Children, useLayoutEffect} from "react";
+import React, {useEffect, useRef, useState, Children, useLayoutEffect} from "react";
 
 export const Slider = ({items, infinity = true, transition = 500}: SliderProps) => {
 
@@ -19,22 +19,31 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
     const itemsContainerRef = useRef<HTMLDivElement>(null);
     // const itemRef = useRef<HTMLDivElement>(null);
 
-
-    const swipeSlide = (swipeTo: 'prevSlide'|'nextSlide') => {
+    const prevSlide = () => {
         if(itemsContainerRef.current){
             itemsContainerRef.current.style.transitionDuration = `${transition}ms`;
         }
-        const offsetTo = swipeTo === 'prevSlide' ? itemWidth : -itemWidth;
-
-        if(infinity && (offset === 0 || offset === (itemWidth * -(itemsForView.length - 1)) ) ){
+        if(infinity && (offset === 0) ){
             return;
         }
-        if((offset === 0 && offsetTo > 0 || offset === (itemWidth * -(itemsForView.length - 1)) && offsetTo<0) ){
+        if(offset === 0){
             return;
         }
-        setOffset(prevState => prevState + offsetTo);
+        setOffset(prevState => prevState + itemWidth);
     }
 
+    const nextSlide = () => {
+        if(itemsContainerRef.current){
+            itemsContainerRef.current.style.transitionDuration = `${transition}ms`;
+        }
+        if(infinity && offset === (itemWidth * -(itemsForView.length - 1))) {
+            return;
+        }
+        if(offset === (itemWidth * -(itemsForView.length - 1))){
+            return;
+        }
+        setOffset(prevState => prevState - itemWidth);
+    }
 
     const goToSlide = (slide: number) => {
 
@@ -42,7 +51,7 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
         setOffset(slidePosition)
     }
 
-    const transitionEnd = () => {
+    const sliderAnimationEnd = () => {
         if(!itemsContainerRef.current){return}
 
         const maxOffset = -(itemWidth * (itemsForView.length - 1))
@@ -58,17 +67,40 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
     }
 
 
+    const [touchStart, setTouchStart] = useState(0);
+    const [position, setPosition] = useState(0)
+    const swipeSlide = (e: React.TouchEvent) => {
+
+        const currentX = e.changedTouches[0].clientX
+
+        if(currentX < touchStart){
+            nextSlide();
+            return;
+        }
+        if(currentX > touchStart){
+            prevSlide();
+            return;
+        }
+
+    }
+
+
+
+
 
     return (
+
         <div className={'slider'}>
-            <Arrow direction={'left'} onClick={swipeSlide.bind(null, 'prevSlide')}/>
-            <Arrow direction={'right'} onClick={swipeSlide.bind(null, 'nextSlide')}/>
+            <Arrow direction={'left'} onClick={prevSlide}/>
+            <Arrow direction={'right'} onClick={nextSlide}/>
 
             <div className="window">
                 <div className={cn("all-items-container")}
-                     style={{transform: `translateX(${offset}% )`}}
-                     ref = {itemsContainerRef}
-                     onTransitionEnd={transitionEnd}
+                    style={{transform: `translateX(${offset}% )`}}
+                    ref = {itemsContainerRef}
+                    onTransitionEnd={sliderAnimationEnd}
+                    onTouchStart={(e)=> setTouchStart(e.touches[0].clientX)}
+                    onTouchEnd={swipeSlide}
                 >
                     {
                         itemsForView.map(
@@ -82,7 +114,7 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
                     }
                 </div>
             </div>
-            {currentSlide}
+             start {touchStart} move: {} offset: {offset}
 
             <div className="slider-pagination">
                 {items.map(
@@ -97,7 +129,6 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
             </div>
 
         </div>
-
 
     )
 }
