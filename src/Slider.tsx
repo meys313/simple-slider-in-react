@@ -52,6 +52,7 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
     }
 
     const sliderAnimationEnd = () => {
+        if(!infinity){ return}
         if(!itemsContainerRef.current){return}
 
         const maxOffset = -(itemWidth * (itemsForView.length - 1))
@@ -68,7 +69,6 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
 
 
     const [touchStart, setTouchStart] = useState(0);
-    const [position, setPosition] = useState(0)
     const swipeSlide = (e: React.TouchEvent) => {
 
         const currentX = e.changedTouches[0].clientX
@@ -114,7 +114,6 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
                     }
                 </div>
             </div>
-             start {touchStart} move: {} offset: {offset}
 
             <div className="slider-pagination">
                 {items.map(

@@ -25,7 +25,7 @@ const test_data = [
 function App() {
 
   return (
-    <Slider items={test_data} infinity={true}/>
+    <Slider items={test_data} infinity={false}/>
   )
 }
 
