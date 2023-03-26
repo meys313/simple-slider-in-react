@@ -1,7 +1,6 @@
 {
   "name": "slider",
   "private": true,
-  "homepage": "https://meys313.github.io/slider/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
