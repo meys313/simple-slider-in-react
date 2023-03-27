@@ -1,9 +1,12 @@
 .arrow{
-  font-size: 5em;
+  font-size: 4em;
   cursor: pointer;
   position: absolute;
   top: 50%;
   z-index: 2;
+  //border: 2px solid black;
+  border-radius: 50%;
+  color: #fff;
 }
 
 
@@ -17,11 +20,15 @@
   transform: translate(-10%, -50%);
   right: 0;
 }
-.arrow{
-  border: 2px solid black;
-  border-radius: 50%;
-  color: #fff;
-}
-.arrow:hover{
 
+@media(max-width: 1000px){
+  .arrow{
+    font-size: 2em;
+  }
+}
+
+@media (max-width: 650px) {
+  .arrow{
+    display: none;
+  }
 }

@@ -1,13 +1,15 @@
-import {Item, SliderProps} from "./Slider.props";
+import {ItemProps, SliderProps} from "./Slider.props";
 import './Slider.scss';
 import cn from "classnames";
 import {Arrow} from "./components/Arrow/Arrow";
-import React, {useEffect, useRef, useState, Children, useLayoutEffect} from "react";
+import React, {useEffect, useRef, useState, Children, cloneElement, useLayoutEffect} from "react";
 
-export const Slider = ({items, infinity = true, transition = 500}: SliderProps) => {
+
+export const Slider = ({children, infinity = true, transition = 500}: SliderProps) => {
+
 
     const [itemsForView, setItemsForView] = useState(
-        !infinity ? items : [ items[items.length -1 ], ...items, items[0]]
+        !infinity ? children : [ children[children.length -1 ], ...children, children[0]]
     );
 
     const copyElement = infinity? 1 : 0;
@@ -46,6 +48,9 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
     }
 
     const goToSlide = (slide: number) => {
+        if(itemsContainerRef.current){
+            itemsContainerRef.current.style.transitionDuration = `${transition}ms`;
+        }
 
         const slidePosition = -( (slide + copyElement ) * itemWidth)
         setOffset(slidePosition)
@@ -72,7 +77,11 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
     const swipeSlide = (e: React.TouchEvent) => {
 
         const currentX = e.changedTouches[0].clientX
+        const difference = touchStart - currentX;
 
+        if(difference > -20 && difference < 20 ){
+            return;
+        }
         if(currentX < touchStart){
             nextSlide();
             return;
@@ -91,8 +100,10 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
     return (
 
         <div className={'slider'}>
-            <Arrow direction={'left'} onClick={prevSlide}/>
-            <Arrow direction={'right'} onClick={nextSlide}/>
+
+
+            <Arrow direction={'left'} className="slider-arrow" onClick={prevSlide}/>
+            <Arrow direction={'right'} className="slider-arrow" onClick={nextSlide}/>
 
             <div className="window">
                 <div className={cn("all-items-container")}
@@ -103,23 +114,22 @@ export const Slider = ({items, infinity = true, transition = 500}: SliderProps) 
                     onTouchEnd={swipeSlide}
                 >
                     {
-                        itemsForView.map(
-                            (item, index) => <div className={cn('item', `item-${index}`)}>
-                                <div className="slider-content">
-                                    <p>{item.text}</p>
-                                </div>
-                                <img src={item.img} alt="img" className='item-img'/>
-                            </div>
-                        )
+                       Children.map(itemsForView, (child) => {
+
+                           return cloneElement(child, {
+                               className: cn(child.props.className, 'item')
+
+                           })
+                       })
                     }
                 </div>
             </div>
 
             <div className="slider-pagination">
-                {items.map(
+                {children.map(
                     (item, index) => {
                         return (
-                            <div onClick={goToSlide.bind(null, index)}>
+                            <div onClick={goToSlide.bind(null, index)} key={index}>
                                 <i className={`fa-${index === currentSlide ? 'solid' : 'regular'} fa-circle`}></i>
                             </div>
                         )

@@ -1,11 +1,16 @@
-export type Item = {
+import React, {ReactElement} from "react";
+
+export type ItemProps = {
     id: number,
     text: string;
     img?: string
 }
 export interface SliderProps{
-    items: Item[];
+    // items: ItemProps[];
+
+    children: ReactElement[];
     infinity?: boolean;
     transition?: number;
 
 }
+

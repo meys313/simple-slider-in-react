@@ -15,3 +15,4 @@ export const Arrow = ({direction, className, ...props}: ArrowProps) => {
         ></i>
     )
 }
+
