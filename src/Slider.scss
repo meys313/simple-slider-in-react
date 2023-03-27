@@ -1,9 +1,4 @@
 
-:root{
-  --items-width: 100%;
-}
-
-
 .slider{
   height: 100%;
   width: 100%;
@@ -27,9 +22,6 @@
 
 .item{
   height: 100%;
-  width: var(--items-width);
-  min-width: var(--items-width);
-  max-width: var(--items-width);
 }
 
 

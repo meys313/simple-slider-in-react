@@ -11,7 +11,7 @@ function App() {
   return (
 
       <div className="custom-block">
-          <Slider infinity={true} transition={600}>
+          <Slider infinity={true} transition={600} itemWidth={100}>
               <div className="customItem">
                   <div className="customItem-content">
                       <p>

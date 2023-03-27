@@ -9,8 +9,10 @@ export interface SliderProps{
     // items: ItemProps[];
 
     children: ReactElement[];
+    itemWidth?: 25|50|100;
     infinity?: boolean;
     transition?: number;
+
 
 }
 

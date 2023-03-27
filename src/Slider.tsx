@@ -3,17 +3,27 @@ import './Slider.scss';
 import cn from "classnames";
 import {Arrow} from "./components/Arrow/Arrow";
 import React, {useEffect, useRef, useState, Children, cloneElement, useLayoutEffect} from "react";
+import {getItemClone} from "./helper/getItemClone";
+
+export const Slider = ({children, infinity = true, transition = 500, itemWidth = 100}: SliderProps) => {
 
 
-export const Slider = ({children, infinity = true, transition = 500}: SliderProps) => {
+    // const [itemsForView, setItemsForView] = useState(
+    //     !infinity ? children : [ children[children.length -1 ], ...children, children[0]]
+    // );
 
+    const copyElement = infinity? 100 / itemWidth : 0;
 
     const [itemsForView, setItemsForView] = useState(
-        !infinity ? children : [ children[children.length -1 ], ...children, children[0]]
+        !infinity ? children :
+            [
+                ...getItemClone('start', copyElement, children ).reverse(),
+                ...children,
+                ...getItemClone('end', copyElement, children ),
+            ]
     );
 
-    const copyElement = infinity? 1 : 0;
-    const itemWidth = 100;
+
     const [offset, setOffset] = useState(-(copyElement * itemWidth));
     const currentSlide = Math.abs(offset/ itemWidth) - copyElement
 
@@ -60,15 +70,15 @@ export const Slider = ({children, infinity = true, transition = 500}: SliderProp
         if(!infinity){ return}
         if(!itemsContainerRef.current){return}
 
-        const maxOffset = -(itemWidth * (itemsForView.length - 1))
-        if(offset === 0){
+        const maxOffset = -(itemWidth * (children.length + copyElement))
+        if(offset > -(copyElement*itemWidth)){
             itemsContainerRef.current.style.transitionDuration = `${0}ms`;
             setOffset(maxOffset + itemWidth)
             return;
         }
         if(offset === maxOffset){
             itemsContainerRef.current.style.transitionDuration = `${0}ms`;
-            setOffset(-itemWidth)
+            setOffset(-(copyElement * itemWidth))
         }
     }
 
@@ -117,13 +127,15 @@ export const Slider = ({children, infinity = true, transition = 500}: SliderProp
                        Children.map(itemsForView, (child) => {
 
                            return cloneElement(child, {
-                               className: cn(child.props.className, 'item')
+                               className: cn(child.props.className, 'item'),
+                               style: { width: `${itemWidth}%`, minWidth: `${itemWidth}%`, maxWidth: `${itemWidth}%`}
 
                            })
                        })
                     }
                 </div>
             </div>
+            {offset}
 
             <div className="slider-pagination">
                 {children.map(
@@ -136,7 +148,6 @@ export const Slider = ({children, infinity = true, transition = 500}: SliderProp
                     }
                 )}
             </div>
-
         </div>
 
     )
