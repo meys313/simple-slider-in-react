@@ -135,7 +135,7 @@ export const Slider = ({children, infinity = true, transition = 500, itemWidth =
                     }
                 </div>
             </div>
-            {offset}
+
 
             <div className="slider-pagination">
                 {children.map(
