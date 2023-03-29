@@ -1,1 +1,1 @@
-> github pages https://meys313.github.io/slider/
+> github pages https://meys313.github.io/simple-slider-in-react/
