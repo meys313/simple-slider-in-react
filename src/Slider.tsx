@@ -105,8 +105,6 @@ export const Slider = ({children, infinity = true, transition = 500, itemWidth =
 
 
 
-
-
     return (
 
         <div className={'slider'}>
